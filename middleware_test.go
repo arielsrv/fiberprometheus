@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package fiberprometheus
+package fiberprometheus_test
 
 import (
 	"io"
@@ -27,6 +27,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/prometheus/client_golang/prometheus"
@@ -36,7 +37,7 @@ import (
 func TestMiddleware(t *testing.T) {
 	app := fiber.New()
 
-	prometheus := New("test-service")
+	prometheus := fiberprometheus.New("test-service")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -49,7 +50,6 @@ func TestMiddleware(t *testing.T) {
 		default:
 			return fiber.ErrInternalServerError
 		}
-
 	})
 	req := httptest.NewRequest("GET", "/", nil)
 	resp, _ := app.Test(req, -1)
@@ -103,7 +103,7 @@ func TestMiddleware(t *testing.T) {
 
 func TestMiddlewareOnRoute(t *testing.T) {
 	app := fiber.New()
-	prometheus := New("test-route")
+	prometheus := fiberprometheus.New("test-route")
 	prefix := "/prefix/path"
 	app.Route(prefix, func(route fiber.Router) {
 		prometheus.RegisterAt(route, "/metrics")
@@ -118,7 +118,6 @@ func TestMiddlewareOnRoute(t *testing.T) {
 		default:
 			return fiber.ErrInternalServerError
 		}
-
 	})
 	req := httptest.NewRequest("GET", "/", nil)
 	resp, _ := app.Test(req, -1)
@@ -173,7 +172,7 @@ func TestMiddlewareOnRoute(t *testing.T) {
 func TestMiddlewareWithServiceName(t *testing.T) {
 	app := fiber.New()
 
-	prometheus := NewWith("unique-service", "my_service_with_name", "http")
+	prometheus := fiberprometheus.NewWith("unique-service", "my_service_with_name", "http")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -214,7 +213,7 @@ func TestMiddlewareWithLabels(t *testing.T) {
 		"customkey1": "customvalue1",
 		"customkey2": "customvalue2",
 	}
-	prometheus := NewWithLabels(constLabels, "my_service", "http")
+	prometheus := fiberprometheus.NewWithLabels(constLabels, "my_service", "http")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -251,7 +250,7 @@ func TestMiddlewareWithLabels(t *testing.T) {
 func TestMiddlewareWithBasicAuth(t *testing.T) {
 	app := fiber.New()
 
-	prometheus := New("basic-auth")
+	prometheus := fiberprometheus.New("basic-auth")
 	prometheus.RegisterAt(app, "/metrics", basicauth.New(basicauth.Config{
 		Users: map[string]string{
 			"prometheus": "password",
@@ -290,7 +289,7 @@ func TestMiddlewareWithCustomRegistry(t *testing.T) {
 	srv := httptest.NewServer(promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 	t.Cleanup(srv.Close)
 
-	promfiber := NewWithRegistry(registry, "unique-service", "my_service_with_name", "http", nil)
+	promfiber := fiberprometheus.NewWithRegistry(registry, "unique-service", "my_service_with_name", "http", nil)
 	app.Use(promfiber.Middleware)
 
 	app.Get("/", func(c *fiber.Ctx) error {

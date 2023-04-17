@@ -22,6 +22,7 @@
 package fiberprometheus
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -116,7 +117,7 @@ func create(registry prometheus.Registerer, serviceName, namespace, subsystem st
 }
 
 // New creates a new instance of FiberPrometheus middleware
-// serviceName is available as a const label
+// serviceName is available as a const label.
 func New(serviceName string) *FiberPrometheus {
 	return create(prometheus.DefaultRegisterer, serviceName, "http", "", nil)
 }
@@ -127,7 +128,7 @@ func New(serviceName string) *FiberPrometheus {
 // Namespace, subsystem get prefixed to the metrics.
 //
 // For e.g. namespace = "my_app", subsystem = "http" then metrics would be
-// `my_app_http_requests_total{...,service= "serviceName"}`
+// `my_app_http_requests_total{...,service= "serviceName"}`.
 func NewWith(serviceName, namespace, subsystem string) *FiberPrometheus {
 	return create(prometheus.DefaultRegisterer, serviceName, namespace, subsystem, nil)
 }
@@ -138,8 +139,8 @@ func NewWith(serviceName, namespace, subsystem string) *FiberPrometheus {
 // Namespace, subsystem get prefixed to the metrics.
 //
 // For e.g. namespace = "my_app", subsystem = "http" and labels = map[string]string{"key1": "value1", "key2":"value2"}
-// then then metrics would become
-// `my_app_http_requests_total{...,key1= "value1", key2= "value2" }`
+// then metrics would become
+// `my_app_http_requests_total{...,key1= "value1", key2= "value2" }`.
 func NewWithLabels(labels map[string]string, namespace, subsystem string) *FiberPrometheus {
 	return create(prometheus.DefaultRegisterer, "", namespace, subsystem, labels)
 }
@@ -150,23 +151,22 @@ func NewWithLabels(labels map[string]string, namespace, subsystem string) *Fiber
 // Namespace, subsystem get prefixed to the metrics.
 //
 // For e.g. namespace = "my_app", subsystem = "http" and labels = map[string]string{"key1": "value1", "key2":"value2"}
-// then then metrics would become
-// `my_app_http_requests_total{...,key1= "value1", key2= "value2" }`
+// then metrics would become
+// `my_app_http_requests_total{...,key1= "value1", key2= "value2" }`.
 func NewWithRegistry(registry prometheus.Registerer, serviceName, namespace, subsystem string, labels map[string]string) *FiberPrometheus {
 	return create(registry, serviceName, namespace, subsystem, labels)
 }
 
-// RegisterAt will register the prometheus handler at a given URL
+// RegisterAt will register the prometheus handler at a given URL.
 func (ps *FiberPrometheus) RegisterAt(app fiber.Router, url string, handlers ...fiber.Handler) {
 	ps.defaultURL = url
 
-	h := append(handlers, adaptor.HTTPHandler(promhttp.Handler()))
-	app.Get(ps.defaultURL, h...)
+	handlers = append(handlers, adaptor.HTTPHandler(promhttp.Handler()))
+	app.Get(ps.defaultURL, handlers...)
 }
 
-// Middleware is the actual default middleware implementation
+// Middleware is the actual default middleware implementation.
 func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
-
 	start := time.Now()
 	method := ctx.Route().Method
 
@@ -184,7 +184,8 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 	// https://docs.gofiber.io/guide/error-handling
 	status := fiber.StatusInternalServerError
 	if err != nil {
-		if e, ok := err.(*fiber.Error); ok {
+		var e *fiber.Error
+		if errors.As(err, &e) {
 			// Get correct error code from fiber.Error type
 			status = e.Code
 		}

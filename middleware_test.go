@@ -22,12 +22,12 @@
 package fiberprometheus_test
 
 import (
+	"github.com/arielsrv/fiberprometheus/v2"
 	"io"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/prometheus/client_golang/prometheus"

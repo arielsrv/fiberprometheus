@@ -20,7 +20,7 @@ http_requests_in_progress_total
 
 ```
 go get -u github.com/gofiber/fiber/v2
-go get -u github.com/ansrivas/fiberprometheus/v2
+go get -u github.com/arielsrv/fiberprometheus/v2
 ```
 
 ### Example using v2
@@ -29,7 +29,7 @@ go get -u github.com/ansrivas/fiberprometheus/v2
 package main
 
 import (
-	"github.com/ansrivas/fiberprometheus/v2"
+	"github.com/arielsrv/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 )
 

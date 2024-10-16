@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/prometheus/client_golang v1.20.5
-	github.com/valyala/fasthttp v1.52.0
+	github.com/valyala/fasthttp v1.56.0
 )
 
 require (
@@ -26,6 +26,6 @@ require (
 	github.com/tinylib/msgp v1.1.9 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 )
